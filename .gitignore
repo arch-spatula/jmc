@@ -1,0 +1,12 @@
+# Binary
+jmc
+jmc.exe
+
+# Test binary
+*.test
+*.test.exe
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
