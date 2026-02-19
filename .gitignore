@@ -10,3 +10,6 @@ jmc.exe
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Data files
+data.json

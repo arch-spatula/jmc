@@ -1,9 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
     <head>
         <title>JMC Wiki</title>
+        <link rel="stylesheet" href="/static/style.css">
     </head>
     <body>
         <h1>JMC Wiki</h1>
+        <div class="actions">
+            <button id="btn-add" type="button">추가</button>
+            <button id="btn-save" type="button">저장</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-check"><input type="checkbox" id="check-all"></th>
+                    <th>이름</th>
+                    <th>평점</th>
+                    <th>카테고리</th>
+                    <th>카카오 지도</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                {{range .Restaurants}}
+                <tr data-status="" data-original-name="{{.Name}}">
+                    <td class="col-check"><input type="checkbox" class="row-check"></td>
+                    <td contenteditable="true" data-field="name">{{.Name}}</td>
+                    <td contenteditable="true" data-field="rating">{{.Rating}}</td>
+                    <td contenteditable="true" data-field="categories">{{range $i, $c := .Categories}}{{if $i}}, {{end}}{{$c}}{{end}}</td>
+                    <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+
+        <script>
+            const tbody = document.querySelector("#table-body");
+            const btnAdd = document.querySelector("#btn-add");
+            const btnSave = document.querySelector("#btn-save");
+            const checkAll = document.querySelector("#check-all");
+
+            function createEmptyRow() {
+                const tr = document.createElement("tr");
+                tr.dataset.status = "new";
+                tr.innerHTML = `
+                    <td class="col-check"><input type="checkbox" class="row-check"></td>
+                    <td contenteditable="true" data-field="name"></td>
+                    <td contenteditable="true" data-field="rating"></td>
+                    <td contenteditable="true" data-field="categories"></td>
+                    <td contenteditable="true" data-field="kakao_url"></td>
+                `;
+                attachRowEvents(tr);
+                return tr;
+            }
+
+            function attachRowEvents(tr) {
+                tr.querySelectorAll("td[contenteditable]").forEach(function(td) {
+                    td.addEventListener("input", function() {
+                        if (tr.dataset.status === "" ) {
+                            tr.dataset.status = "updated";
+                        }
+                    });
+                });
+
+                tr.querySelector(".row-check").addEventListener("change", function(e) {
+                    if (e.target.checked) {
+                        tr.dataset.status = "deleted";
+                        tr.classList.add("row-deleted");
+                    } else {
+                        tr.dataset.status = "";
+                        tr.classList.remove("row-deleted");
+                    }
+                });
+            }
+
+            function readRow(tr) {
+                const name = tr.querySelector("[data-field='name']").textContent.trim();
+                const rating = tr.querySelector("[data-field='rating']").textContent.trim();
+                const catText = tr.querySelector("[data-field='categories']").textContent.trim();
+                const categories = catText ? catText.split(",").map(function(s) { return s.trim(); }).filter(Boolean) : [];
+                const kakaoUrl = tr.querySelector("[data-field='kakao_url']").textContent.trim();
+                return { name: name, rating: rating, categories: categories, kakao_url: kakaoUrl };
+            }
+
+            btnAdd.addEventListener("click", function() {
+                const row = createEmptyRow();
+                tbody.insertBefore(row, tbody.firstChild);
+            });
+
+            checkAll.addEventListener("change", function() {
+                const checked = checkAll.checked;
+                tbody.querySelectorAll(".row-check").forEach(function(cb) {
+                    cb.checked = checked;
+                    cb.dispatchEvent(new Event("change"));
+                });
+            });
+
+            btnSave.addEventListener("click", async function() {
+                const rows = tbody.querySelectorAll("tr");
+                const payload = { "new": [], "update": [], "delete": [] };
+
+                rows.forEach(function(tr) {
+                    const status = tr.dataset.status;
+                    
+                    if (status === "new") {
+                        payload["new"].push(readRow(tr));
+                    } else if (status === "updated") {
+                        payload["update"].push(readRow(tr));
+                    } else if (status === "deleted") {
+                        const name = tr.dataset.originalName || tr.querySelector("[data-field='name']").textContent.trim();
+                        if (name) {
+                            payload["delete"].push(name);
+                        }
+                    }
+                });
+
+                const response = await fetch("/api/restaurants/save", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    const text = await response.text();
+                    alert("저장 실패: " + text);
+                }
+            });
+
+            tbody.querySelectorAll("tr").forEach(attachRowEvents);
+        </script>
     </body>
 </html>
