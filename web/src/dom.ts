@@ -7,8 +7,8 @@ export function createEmptyRow(): HTMLTableRowElement {
   tr.dataset.status = "new";
   tr.innerHTML = `
     <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"></td>
-    <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
     <td contenteditable="true" data-field="name"></td>
+    <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
     <td data-field="rating">${buildRatingSelect(0)}</td>
     <td contenteditable="true" data-field="categories"></td>
     <td contenteditable="true" data-field="kakao_url"></td>
@@ -25,10 +25,10 @@ export function createMenuRow(): HTMLTableRowElement {
   tr.dataset.status = "new-menu";
   tr.innerHTML = `
     <td></td>
-    <td></td>
     <td contenteditable="true" data-field="menu-name"></td>
-    <td data-field="menu-rating">${buildRatingSelect(0)}</td>
     <td contenteditable="true" data-field="menu-price"></td>
+    <td data-field="menu-rating">${buildRatingSelect(0)}</td>
+    <td></td>
     <td></td>
     <td contenteditable="true" data-field="menu-description"></td>
     <td class="col-delete"><input type="checkbox" class="menu-check"></td>

@@ -33,8 +33,8 @@ function makeRow(
   const ratingValue = overrides.rating ?? 0;
   tr.innerHTML = `
     <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"${overrides.visited ? " checked" : ""}></td>
-    <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
     <td contenteditable="true" data-field="name">${overrides.name ?? ""}</td>
+    <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
     <td data-field="rating">${buildRatingSelect(ratingValue)}</td>
     <td contenteditable="true" data-field="categories">${overrides.categories ?? ""}</td>
     <td contenteditable="true" data-field="kakao_url">${overrides.kakaoUrl ?? ""}</td>
@@ -59,10 +59,10 @@ function makeMenuRow(
   const ratingValue = overrides.rating ?? 0;
   tr.innerHTML = `
     <td></td>
-    <td></td>
     <td contenteditable="true" data-field="menu-name">${overrides.name ?? ""}</td>
-    <td data-field="menu-rating">${buildRatingSelect(ratingValue)}</td>
     <td contenteditable="true" data-field="menu-price">${overrides.price ?? ""}</td>
+    <td data-field="menu-rating">${buildRatingSelect(ratingValue)}</td>
+    <td></td>
     <td></td>
     <td contenteditable="true" data-field="menu-description">${overrides.description ?? ""}</td>
     <td class="col-delete"><input type="checkbox" class="menu-check"${overrides.checked ? " checked" : ""}></td>
@@ -100,10 +100,10 @@ describe("createEmptyRow", () => {
     expect(firstTd!.querySelector(".visited-check")).not.toBeNull();
   });
 
-  it("메뉴 추가 버튼이 두 번째 td에 있다", () => {
+  it("메뉴 추가 버튼이 세 번째 td에 있다", () => {
     const tr = createEmptyRow();
     const tds = tr.querySelectorAll("td");
-    expect(tds[1].querySelector(".btn-add-menu")).not.toBeNull();
+    expect(tds[2].querySelector(".btn-add-menu")).not.toBeNull();
   });
 
   it("삭제 체크박스가 마지막 td에 있다", () => {

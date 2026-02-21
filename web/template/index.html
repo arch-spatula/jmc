@@ -14,8 +14,8 @@
             <thead>
                 <tr>
                     <th class="col-visited">방문</th>
-                    <th class="col-menu">메뉴</th>
                     <th>이름</th>
+                    <th class="col-menu">메뉴/가격</th>
                     <th>평점</th>
                     <th>카테고리</th>
                     <th>카카오 지도</th>
@@ -27,8 +27,8 @@
                 {{range .Restaurants}}
                 <tr class="restaurant-row" data-status="" data-original-name="{{.Name}}">
                     <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"{{if .Visited}} checked{{end}}></td>
-                    <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
                     <td contenteditable="true" data-field="name">{{.Name}}</td>
+                    <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
                     <td data-field="rating">
                         <select class="rating-select" data-value="{{.Rating}}">
                             <option value="0">-</option>
@@ -52,8 +52,8 @@
                 {{range .Menus}}
                 <tr class="menu-row" data-status="">
                     <td></td>
-                    <td></td>
                     <td contenteditable="true" data-field="menu-name">{{.Name}}</td>
+                    <td contenteditable="true" data-field="menu-price">{{.Price}}</td>
                     <td data-field="menu-rating">
                         <select class="rating-select" data-value="{{.Rating}}">
                             <option value="0">-</option>
@@ -69,7 +69,7 @@
                             <option value="5">🌟🌟🌟🌟🌟</option>
                         </select>
                     </td>
-                    <td contenteditable="true" data-field="menu-price">{{.Price}}</td>
+                    <td></td>
                     <td></td>
                     <td contenteditable="true" data-field="menu-description">{{.Description}}</td>
                     <td class="col-delete"><input type="checkbox" class="menu-check"></td>

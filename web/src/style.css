@@ -78,12 +78,11 @@ tr.row-visited td:not(.col-visited):not(.col-delete) {
     outline: 2px solid #4a90d9;
 }
 
-.menu-row td:nth-child(3) {
+.menu-row td:nth-child(2) {
     padding-left: 24px;
 }
 
-.menu-row td:first-child,
-.menu-row td:nth-child(2) {
+.menu-row td:first-child {
     background-color: #fafafa;
 }
 
