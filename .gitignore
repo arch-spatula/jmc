@@ -13,3 +13,9 @@ Desktop.ini
 
 # Data files
 data.json
+
+# Frontend dist (build output)
+cmd/wiki/
+
+# Node
+web/node_modules/

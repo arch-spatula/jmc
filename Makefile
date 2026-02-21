@@ -1,15 +1,23 @@
 APP_NAME := jmc
 
-.PHONY: build run clean test
+.PHONY: build build-web run clean test test-web
 
-build:
+build-web:
+	cd web && pnpm run build
+	cp web/template/index.html cmd/wiki/index.html
+
+build: build-web
 	go build -o $(APP_NAME) .
 
-run:
-	go run .
+run: build
+	./$(APP_NAME) wiki
 
-test:
+test-web:
+	cd web && pnpm test
+
+test: test-web
 	go test ./... -v
 
 clean:
 	rm -f $(APP_NAME)
+	rm -rf cmd/wiki/

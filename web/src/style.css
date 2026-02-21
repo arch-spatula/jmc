@@ -1,0 +1,60 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #000;
+}
+
+th, td {
+    border: 1px solid #000;
+    padding: 8px;
+}
+
+td[contenteditable="true"]:focus {
+    outline: 2px solid #4a90d9;
+    background-color: #f0f7ff;
+}
+
+.col-check {
+    width: 40px;
+    text-align: center;
+}
+
+.row-deleted td {
+    text-decoration: line-through;
+    color: #999;
+    background-color: #f5f5f5;
+}
+
+.actions {
+    margin-bottom: 12px;
+}
+
+.actions button {
+    padding: 6px 16px;
+    margin-right: 8px;
+    cursor: pointer;
+    border: 1px solid #333;
+    background: #fff;
+    font-size: 14px;
+}
+
+.actions button:hover {
+    background: #f0f0f0;
+}
+
+tr[data-status="new"] td {
+    background-color: #eeffee;
+}
+
+tr[data-status="updated"] td {
+    background-color: #fffff0;
+}
+
+.col-visited {
+    width: 50px;
+    text-align: center;
+}
+
+tr.row-visited td:not(.col-check):not(.col-visited) {
+    color: #999;
+}
