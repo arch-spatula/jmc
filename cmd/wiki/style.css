@@ -49,3 +49,12 @@ tr[data-status="new"] td {
 tr[data-status="updated"] td {
     background-color: #fffff0;
 }
+
+.col-visited {
+    width: 50px;
+    text-align: center;
+}
+
+tr.row-visited td:not(.col-check):not(.col-visited) {
+    color: #999;
+}

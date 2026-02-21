@@ -18,6 +18,7 @@
                     <th>평점</th>
                     <th>카테고리</th>
                     <th>카카오 지도</th>
+                    <th>방문</th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -28,6 +29,7 @@
                     <td contenteditable="true" data-field="rating">{{.Rating}}</td>
                     <td contenteditable="true" data-field="categories">{{range $i, $c := .Categories}}{{if $i}}, {{end}}{{$c}}{{end}}</td>
                     <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
+                    <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"{{if .Visited}} checked{{end}}></td>
                 </tr>
                 {{end}}
             </tbody>
@@ -48,6 +50,7 @@
                     <td contenteditable="true" data-field="rating"></td>
                     <td contenteditable="true" data-field="categories"></td>
                     <td contenteditable="true" data-field="kakao_url"></td>
+                    <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"></td>
                 `;
                 attachRowEvents(tr);
                 return tr;
@@ -56,10 +59,16 @@
             function attachRowEvents(tr) {
                 tr.querySelectorAll("td[contenteditable]").forEach(function(td) {
                     td.addEventListener("input", function() {
-                        if (tr.dataset.status === "" ) {
+                        if (tr.dataset.status === "") {
                             tr.dataset.status = "updated";
                         }
                     });
+                });
+
+                tr.querySelector(".visited-check").addEventListener("change", function() {
+                    if (tr.dataset.status === "") {
+                        tr.dataset.status = "updated";
+                    }
                 });
 
                 tr.querySelector(".row-check").addEventListener("change", function(e) {
@@ -79,7 +88,8 @@
                 const catText = tr.querySelector("[data-field='categories']").textContent.trim();
                 const categories = catText ? catText.split(",").map(function(s) { return s.trim(); }).filter(Boolean) : [];
                 const kakaoUrl = tr.querySelector("[data-field='kakao_url']").textContent.trim();
-                return { name: name, rating: rating, categories: categories, kakao_url: kakaoUrl };
+                const visited = tr.querySelector(".visited-check").checked;
+                return { name: name, rating: rating, categories: categories, kakao_url: kakaoUrl, visited: visited };
             }
 
             btnAdd.addEventListener("click", function() {
