@@ -4,7 +4,7 @@ import "fmt"
 
 type Restaurant struct {
 	Name       string   `json:"name"`
-	Rating     string   `json:"rating"`
+	Rating     float64  `json:"rating"`
 	Categories []string `json:"categories"`
 	KakaoURL   string   `json:"kakao_url"`
 	Visited    bool     `json:"visited"`
@@ -14,8 +14,11 @@ func (r *Restaurant) Validate() error {
 	if r.Name == "" {
 		return fmt.Errorf("name은 필수입니다")
 	}
-	if r.Rating == "" {
-		return fmt.Errorf("rating은 필수입니다: %s", r.Name)
+	if r.Rating < 0 || r.Rating > 5 {
+		return fmt.Errorf("rating은 0~5 사이여야 합니다: %s", r.Name)
+	}
+	if r.Rating*2 != float64(int(r.Rating*2)) {
+		return fmt.Errorf("rating은 0.5 단위여야 합니다: %s", r.Name)
 	}
 	if len(r.Categories) == 0 {
 		return fmt.Errorf("categories는 최소 1개 필요합니다: %s", r.Name)

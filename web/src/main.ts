@@ -1,5 +1,10 @@
 import "./style.css";
-import { createEmptyRow, attachRowEvents, collectPayload } from "./dom";
+import {
+  createEmptyRow,
+  attachRowEvents,
+  collectPayload,
+  initRatingSelects,
+} from "./dom";
 import { saveBatch } from "./api";
 
 const tbody = document.querySelector<HTMLTableSectionElement>("#table-body")!;
@@ -31,4 +36,5 @@ btnSave.addEventListener("click", async () => {
   }
 });
 
+initRatingSelects(tbody);
 tbody.querySelectorAll<HTMLTableRowElement>("tr").forEach(attachRowEvents);

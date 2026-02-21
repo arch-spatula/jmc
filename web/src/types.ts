@@ -1,6 +1,6 @@
 export interface Restaurant {
   name: string;
-  rating: string;
+  rating: number;
   categories: string[];
   kakao_url: string;
   visited: boolean;

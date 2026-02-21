@@ -58,3 +58,16 @@ tr[data-status="updated"] td {
 tr.row-visited td:not(.col-check):not(.col-visited) {
     color: #999;
 }
+
+.rating-select {
+    border: none;
+    background: transparent;
+    font-size: inherit;
+    cursor: pointer;
+    padding: 2px 4px;
+    width: 100%;
+}
+
+.rating-select:focus {
+    outline: 2px solid #4a90d9;
+}

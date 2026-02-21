@@ -24,5 +24,5 @@ func Recommend() {
 	r := rand.New(source)
 	randomIndex := r.Intn(len(data.Restaurants))
 
-	fmt.Printf("%s %s %s %s\n", data.Restaurants[randomIndex].Name, data.Restaurants[randomIndex].Rating, data.Restaurants[randomIndex].Categories, data.Restaurants[randomIndex].KakaoURL)
+	fmt.Printf("%s %.1f %s %s\n", data.Restaurants[randomIndex].Name, data.Restaurants[randomIndex].Rating, data.Restaurants[randomIndex].Categories, data.Restaurants[randomIndex].KakaoURL)
 }

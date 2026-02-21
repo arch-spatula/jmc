@@ -1,4 +1,5 @@
 import type { Restaurant, SavePayload } from "./types";
+import { buildRatingSelect } from "./rating";
 
 export function createEmptyRow(): HTMLTableRowElement {
   const tr = document.createElement("tr");
@@ -6,7 +7,7 @@ export function createEmptyRow(): HTMLTableRowElement {
   tr.innerHTML = `
     <td class="col-check"><input type="checkbox" class="row-check"></td>
     <td contenteditable="true" data-field="name"></td>
-    <td contenteditable="true" data-field="rating"></td>
+    <td data-field="rating">${buildRatingSelect(0)}</td>
     <td contenteditable="true" data-field="categories"></td>
     <td contenteditable="true" data-field="kakao_url"></td>
     <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"></td>
@@ -25,6 +26,15 @@ export function attachRowEvents(tr: HTMLTableRowElement): void {
       });
     },
   );
+
+  const ratingSelect = tr.querySelector<HTMLSelectElement>(".rating-select");
+  if (ratingSelect) {
+    ratingSelect.addEventListener("change", () => {
+      if (tr.dataset.status === "") {
+        tr.dataset.status = "updated";
+      }
+    });
+  }
 
   tr.querySelector<HTMLInputElement>(".visited-check")!.addEventListener(
     "change",
@@ -54,9 +64,8 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
   const name = tr
     .querySelector<HTMLElement>("[data-field='name']")!
     .textContent!.trim();
-  const rating = tr
-    .querySelector<HTMLElement>("[data-field='rating']")!
-    .textContent!.trim();
+  const ratingSelect = tr.querySelector<HTMLSelectElement>(".rating-select");
+  const rating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
   const catText = tr
     .querySelector<HTMLElement>("[data-field='categories']")!
     .textContent!.trim();
@@ -101,4 +110,12 @@ export function collectPayload(tbody: HTMLTableSectionElement): SavePayload {
   });
 
   return payload;
+}
+
+export function initRatingSelects(container: HTMLElement): void {
+  container
+    .querySelectorAll<HTMLSelectElement>(".rating-select[data-value]")
+    .forEach((select) => {
+      select.value = select.dataset.value!;
+    });
 }

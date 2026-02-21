@@ -7,37 +7,56 @@ import (
 )
 
 func TestRestaurantValidate_MissingName(t *testing.T) {
-	r := Restaurant{Rating: "⭐", Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	r := Restaurant{Rating: 3, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err == nil {
 		t.Fatal("name이 없는데 에러가 발생하지 않음")
 	}
 }
 
-func TestRestaurantValidate_MissingRating(t *testing.T) {
-	r := Restaurant{Name: "테스트", Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+func TestRestaurantValidate_RatingOutOfRange(t *testing.T) {
+	r := Restaurant{Name: "테스트", Rating: -1, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err == nil {
-		t.Fatal("rating이 없는데 에러가 발생하지 않음")
+		t.Fatal("rating이 범위 밖인데 에러가 발생하지 않음")
+	}
+
+	r.Rating = 5.5
+	if err := r.Validate(); err == nil {
+		t.Fatal("rating이 5 초과인데 에러가 발생하지 않음")
+	}
+}
+
+func TestRestaurantValidate_RatingNotHalfStep(t *testing.T) {
+	r := Restaurant{Name: "테스트", Rating: 2.3, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	if err := r.Validate(); err == nil {
+		t.Fatal("rating이 0.5 단위가 아닌데 에러가 발생하지 않음")
 	}
 }
 
 func TestRestaurantValidate_EmptyCategories(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: "⭐", Categories: []string{}, KakaoURL: "https://example.com"}
+	r := Restaurant{Name: "테스트", Rating: 3, Categories: []string{}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err == nil {
 		t.Fatal("빈 categories인데 에러가 발생하지 않음")
 	}
 }
 
 func TestRestaurantValidate_MissingKakaoURL(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: "⭐", Categories: []string{"한식"}}
+	r := Restaurant{Name: "테스트", Rating: 3, Categories: []string{"한식"}}
 	if err := r.Validate(); err == nil {
 		t.Fatal("kakao_url이 없는데 에러가 발생하지 않음")
 	}
 }
 
 func TestRestaurantValidate_Valid(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: "⭐", Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	r := Restaurant{Name: "테스트", Rating: 4.5, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err != nil {
 		t.Fatalf("유효한 데이터인데 에러 발생: %v", err)
+	}
+}
+
+func TestRestaurantValidate_ZeroRating(t *testing.T) {
+	r := Restaurant{Name: "테스트", Rating: 0, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	if err := r.Validate(); err != nil {
+		t.Fatalf("rating 0은 유효한데 에러 발생: %v", err)
 	}
 }
 

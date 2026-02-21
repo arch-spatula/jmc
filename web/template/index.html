@@ -26,7 +26,21 @@
                 <tr data-status="" data-original-name="{{.Name}}">
                     <td class="col-check"><input type="checkbox" class="row-check"></td>
                     <td contenteditable="true" data-field="name">{{.Name}}</td>
-                    <td contenteditable="true" data-field="rating">{{.Rating}}</td>
+                    <td data-field="rating">
+                        <select class="rating-select" data-value="{{.Rating}}">
+                            <option value="0">-</option>
+                            <option value="0.5">(반)</option>
+                            <option value="1">⭐</option>
+                            <option value="1.5">⭐(반)</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="2.5">⭐⭐(반)</option>
+                            <option value="3">⭐⭐⭐</option>
+                            <option value="3.5">⭐⭐⭐(반)</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="4.5">⭐⭐⭐⭐(반)</option>
+                            <option value="5">🌟🌟🌟🌟🌟</option>
+                        </select>
+                    </td>
                     <td contenteditable="true" data-field="categories">{{range $i, $c := .Categories}}{{if $i}}, {{end}}{{$c}}{{end}}</td>
                     <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
                     <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"{{if .Visited}} checked{{end}}></td>
