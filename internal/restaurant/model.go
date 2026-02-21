@@ -2,12 +2,37 @@ package restaurant
 
 import "fmt"
 
+type Menu struct {
+	Name        string  `json:"name"`
+	Rating      float64 `json:"rating"`
+	Price       int     `json:"price"`
+	Description string  `json:"description"`
+}
+
+func (m *Menu) Validate() error {
+	if m.Name == "" {
+		return fmt.Errorf("메뉴 name은 필수입니다")
+	}
+	if m.Rating < 0 || m.Rating > 5 {
+		return fmt.Errorf("메뉴 rating은 0~5 사이여야 합니다: %s", m.Name)
+	}
+	if m.Rating*2 != float64(int(m.Rating*2)) {
+		return fmt.Errorf("메뉴 rating은 0.5 단위여야 합니다: %s", m.Name)
+	}
+	if m.Price < 0 {
+		return fmt.Errorf("메뉴 price는 0 이상이어야 합니다: %s", m.Name)
+	}
+	return nil
+}
+
 type Restaurant struct {
-	Name       string   `json:"name"`
-	Rating     float64  `json:"rating"`
-	Categories []string `json:"categories"`
-	KakaoURL   string   `json:"kakao_url"`
-	Visited    bool     `json:"visited"`
+	Name        string   `json:"name"`
+	Rating      float64  `json:"rating"`
+	Categories  []string `json:"categories"`
+	KakaoURL    string   `json:"kakao_url"`
+	Visited     bool     `json:"visited"`
+	Description string   `json:"description"`
+	Menus       []Menu   `json:"menus"`
 }
 
 func (r *Restaurant) Validate() error {
@@ -25,6 +50,11 @@ func (r *Restaurant) Validate() error {
 	}
 	if r.KakaoURL == "" {
 		return fmt.Errorf("kakao_url은 필수입니다: %s", r.Name)
+	}
+	for i, m := range r.Menus {
+		if err := m.Validate(); err != nil {
+			return fmt.Errorf("%s menus[%d]: %w", r.Name, i, err)
+		}
 	}
 	return nil
 }

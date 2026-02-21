@@ -13,18 +13,21 @@
         <table>
             <thead>
                 <tr>
-                    <th class="col-check"><input type="checkbox" id="check-all"></th>
+                    <th class="col-visited">방문</th>
+                    <th class="col-menu">메뉴</th>
                     <th>이름</th>
                     <th>평점</th>
                     <th>카테고리</th>
                     <th>카카오 지도</th>
-                    <th>방문</th>
+                    <th>소감</th>
+                    <th class="col-delete">삭제</th>
                 </tr>
             </thead>
             <tbody id="table-body">
                 {{range .Restaurants}}
-                <tr data-status="" data-original-name="{{.Name}}">
-                    <td class="col-check"><input type="checkbox" class="row-check"></td>
+                <tr class="restaurant-row" data-status="" data-original-name="{{.Name}}">
+                    <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"{{if .Visited}} checked{{end}}></td>
+                    <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
                     <td contenteditable="true" data-field="name">{{.Name}}</td>
                     <td data-field="rating">
                         <select class="rating-select" data-value="{{.Rating}}">
@@ -43,8 +46,35 @@
                     </td>
                     <td contenteditable="true" data-field="categories">{{range $i, $c := .Categories}}{{if $i}}, {{end}}{{$c}}{{end}}</td>
                     <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
-                    <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"{{if .Visited}} checked{{end}}></td>
+                    <td contenteditable="true" data-field="description">{{.Description}}</td>
+                    <td class="col-delete"><input type="checkbox" class="row-check"></td>
                 </tr>
+                {{range .Menus}}
+                <tr class="menu-row" data-status="">
+                    <td></td>
+                    <td></td>
+                    <td contenteditable="true" data-field="menu-name">{{.Name}}</td>
+                    <td data-field="menu-rating">
+                        <select class="rating-select" data-value="{{.Rating}}">
+                            <option value="0">-</option>
+                            <option value="0.5">(반)</option>
+                            <option value="1">⭐</option>
+                            <option value="1.5">⭐(반)</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="2.5">⭐⭐(반)</option>
+                            <option value="3">⭐⭐⭐</option>
+                            <option value="3.5">⭐⭐⭐(반)</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="4.5">⭐⭐⭐⭐(반)</option>
+                            <option value="5">🌟🌟🌟🌟🌟</option>
+                        </select>
+                    </td>
+                    <td contenteditable="true" data-field="menu-price">{{.Price}}</td>
+                    <td></td>
+                    <td contenteditable="true" data-field="menu-description">{{.Description}}</td>
+                    <td class="col-delete"><input type="checkbox" class="menu-check"></td>
+                </tr>
+                {{end}}
                 {{end}}
             </tbody>
         </table>

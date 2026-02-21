@@ -1,28 +1,40 @@
 import "./style.css";
 import {
   createEmptyRow,
+  createMenuRow,
   attachRowEvents,
+  attachMenuRowEvents,
   collectPayload,
   initRatingSelects,
+  getMenuRows,
 } from "./dom";
 import { saveBatch } from "./api";
 
 const tbody = document.querySelector<HTMLTableSectionElement>("#table-body")!;
 const btnAdd = document.querySelector<HTMLButtonElement>("#btn-add")!;
 const btnSave = document.querySelector<HTMLButtonElement>("#btn-save")!;
-const checkAll = document.querySelector<HTMLInputElement>("#check-all")!;
 
 btnAdd.addEventListener("click", () => {
   const row = createEmptyRow();
   tbody.insertBefore(row, tbody.firstChild);
 });
 
-checkAll.addEventListener("change", () => {
-  const checked = checkAll.checked;
-  tbody.querySelectorAll<HTMLInputElement>(".row-check").forEach((cb) => {
-    cb.checked = checked;
-    cb.dispatchEvent(new Event("change"));
-  });
+tbody.addEventListener("click", (e) => {
+  const target = e.target as HTMLElement;
+  if (!target.classList.contains("btn-add-menu")) return;
+
+  const restaurantRow = target.closest<HTMLTableRowElement>(".restaurant-row");
+  if (!restaurantRow) return;
+
+  const menuRows = getMenuRows(restaurantRow);
+  const insertAfter =
+    menuRows.length > 0 ? menuRows[menuRows.length - 1] : restaurantRow;
+  const newMenuRow = createMenuRow();
+  insertAfter.after(newMenuRow);
+
+  if (restaurantRow.dataset.status === "") {
+    restaurantRow.dataset.status = "updated";
+  }
 });
 
 btnSave.addEventListener("click", async () => {
@@ -37,4 +49,9 @@ btnSave.addEventListener("click", async () => {
 });
 
 initRatingSelects(tbody);
-tbody.querySelectorAll<HTMLTableRowElement>("tr").forEach(attachRowEvents);
+tbody
+  .querySelectorAll<HTMLTableRowElement>("tr.restaurant-row")
+  .forEach(attachRowEvents);
+tbody
+  .querySelectorAll<HTMLTableRowElement>("tr.menu-row")
+  .forEach(attachMenuRowEvents);
