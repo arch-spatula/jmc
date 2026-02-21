@@ -7,6 +7,7 @@
     <body>
         <h1>JMC Wiki</h1>
         <div class="actions">
+            <button id="btn-recommend" type="button">추천</button>
             <button id="btn-add" type="button">추가</button>
             <button id="btn-save" type="button">저장</button>
         </div>
@@ -14,11 +15,11 @@
             <thead>
                 <tr>
                     <th class="col-visited">방문</th>
-                    <th>이름</th>
+                    <th class="col-name">이름</th>
                     <th class="col-menu">메뉴/가격</th>
-                    <th>평점</th>
-                    <th>카테고리</th>
-                    <th>카카오 지도</th>
+                    <th class="col-rating">평점</th>
+                    <th class="col-category">카테고리</th>
+                    <th class="col-kakao">카카오 지도</th>
                     <th>소감</th>
                     <th class="col-delete">삭제</th>
                 </tr>
@@ -46,12 +47,12 @@
                     </td>
                     <td contenteditable="true" data-field="categories">{{range $i, $c := .Categories}}{{if $i}}, {{end}}{{$c}}{{end}}</td>
                     <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
-                    <td contenteditable="true" data-field="description">{{.Description}}</td>
+                    <td contenteditable="true" data-field="description">{{nl2br .Description}}</td>
                     <td class="col-delete"><input type="checkbox" class="row-check"></td>
                 </tr>
                 {{range .Menus}}
                 <tr class="menu-row" data-status="">
-                    <td></td>
+                    <td class="col-visited" data-field="menu-visited"><input type="checkbox" class="menu-visited-check"{{if .Visited}} checked{{end}}></td>
                     <td contenteditable="true" data-field="menu-name">{{.Name}}</td>
                     <td contenteditable="true" data-field="menu-price">{{.Price}}</td>
                     <td data-field="menu-rating">
@@ -71,7 +72,7 @@
                     </td>
                     <td></td>
                     <td></td>
-                    <td contenteditable="true" data-field="menu-description">{{.Description}}</td>
+                    <td contenteditable="true" data-field="menu-description">{{nl2br .Description}}</td>
                     <td class="col-delete"><input type="checkbox" class="menu-check"></td>
                 </tr>
                 {{end}}

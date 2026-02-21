@@ -45,6 +45,7 @@ func Wiki() {
 	mux.HandleFunc("/", controller.HandlePage)
 	mux.Handle("/static/", controller.StaticFiles(wikiFiles))
 	mux.HandleFunc("GET /api/restaurants", controller.HandleGetAll)
+	mux.HandleFunc("GET /api/restaurants/recommend", controller.HandleRecommend)
 	mux.HandleFunc("POST /api/restaurants", controller.HandleCreate)
 	mux.HandleFunc("PUT /api/restaurants/{name}", controller.HandleUpdate)
 	mux.HandleFunc("DELETE /api/restaurants/{name}", controller.HandleDelete)

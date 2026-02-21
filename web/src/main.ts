@@ -6,13 +6,42 @@ import {
   attachMenuRowEvents,
   collectPayload,
   initRatingSelects,
+  formatPriceCell,
   getMenuRows,
 } from "./dom";
-import { saveBatch } from "./api";
+import { fetchRecommend, saveBatch } from "./api";
+import { initKeyboardNavigation } from "./navigate";
 
+const table = document.querySelector<HTMLTableElement>("table")!;
 const tbody = document.querySelector<HTMLTableSectionElement>("#table-body")!;
 const btnAdd = document.querySelector<HTMLButtonElement>("#btn-add")!;
 const btnSave = document.querySelector<HTMLButtonElement>("#btn-save")!;
+const btnRecommend = document.querySelector<HTMLButtonElement>("#btn-recommend")!;
+
+initKeyboardNavigation(table);
+
+btnRecommend.addEventListener("click", async () => {
+  try {
+    const restaurant = await fetchRecommend();
+    if (!restaurant) {
+      alert("추천할 식당이 없습니다.");
+      return;
+    }
+    const rows = tbody.querySelectorAll<HTMLTableRowElement>("tr.restaurant-row");
+    for (const row of rows) {
+      row.classList.remove("row-recommended");
+      const nameCell = row.querySelector<HTMLElement>("[data-field='name']");
+      if (nameCell?.textContent?.trim() === restaurant.name) {
+        row.classList.add("row-recommended");
+        row.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => row.classList.remove("row-recommended"), 2000);
+        break;
+      }
+    }
+  } catch (err) {
+    alert("추천 실패: " + (err as Error).message);
+  }
+});
 
 btnAdd.addEventListener("click", () => {
   const row = createEmptyRow();
@@ -49,6 +78,9 @@ btnSave.addEventListener("click", async () => {
 });
 
 initRatingSelects(tbody);
+tbody
+  .querySelectorAll<HTMLElement>("[data-field='menu-price']")
+  .forEach(formatPriceCell);
 tbody
   .querySelectorAll<HTMLTableRowElement>("tr.restaurant-row")
   .forEach(attachRowEvents);

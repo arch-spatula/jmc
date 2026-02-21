@@ -1,5 +1,7 @@
 package restaurant
 
+import "math/rand"
+
 type Service struct {
 	repo *Repository
 }
@@ -26,4 +28,16 @@ func (s *Service) Delete(name string) error {
 
 func (s *Service) SaveBatch(req SaveRequest) (*RestaurantData, error) {
 	return s.repo.SaveBatch(req)
+}
+
+func (s *Service) Recommend() (*Restaurant, error) {
+	data, err := s.repo.FindAll()
+	if err != nil {
+		return nil, err
+	}
+	if len(data.Restaurants) == 0 {
+		return nil, nil
+	}
+	idx := rand.Intn(len(data.Restaurants))
+	return &data.Restaurants[idx], nil
 }

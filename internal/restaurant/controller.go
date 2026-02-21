@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
+	"strings"
 )
 
 type Controller struct {
@@ -14,7 +15,13 @@ type Controller struct {
 }
 
 func NewController(service *Service, wikiFiles embed.FS) *Controller {
-	tmpl, _ := template.ParseFS(wikiFiles, "wiki/index.html")
+	funcMap := template.FuncMap{
+		"nl2br": func(s string) template.HTML {
+			escaped := template.HTMLEscapeString(s)
+			return template.HTML(strings.ReplaceAll(escaped, "\n", "<br>"))
+		},
+	}
+	tmpl, _ := template.New("index.html").Funcs(funcMap).ParseFS(wikiFiles, "wiki/index.html")
 	return &Controller{service: service, tmpl: tmpl}
 }
 
@@ -84,6 +91,21 @@ func (c *Controller) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (c *Controller) HandleRecommend(w http.ResponseWriter, r *http.Request) {
+	restaurant, err := c.service.Recommend()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if restaurant == nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("null"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(restaurant)
 }
 
 func (c *Controller) HandleSave(w http.ResponseWriter, r *http.Request) {

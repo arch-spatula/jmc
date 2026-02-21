@@ -3,6 +3,7 @@ export interface Menu {
   rating: number;
   price: number;
   description: string;
+  visited: boolean;
 }
 
 export interface Restaurant {

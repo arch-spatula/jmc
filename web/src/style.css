@@ -2,30 +2,51 @@ table {
     width: 100%;
     border-collapse: collapse;
     border: 1px solid #000;
+    table-layout: fixed;
 }
 
 th, td {
     border: 1px solid #000;
     padding: 8px;
+    overflow-wrap: break-word;
+    vertical-align: top;
 }
 
-td[contenteditable="true"]:focus {
+td:focus-within {
     outline: 2px solid #4a90d9;
+    outline-offset: -2px;
     background-color: #f0f7ff;
 }
 
 .col-visited {
-    width: 50px;
+    width: 45px;
     text-align: center;
+}
+
+.col-name {
+    width: 130px;
 }
 
 .col-menu {
-    width: 50px;
+    width: 80px;
     text-align: center;
 }
 
+.col-rating {
+    width: 150px;
+}
+
+.col-category {
+    width: 110px;
+}
+
+.col-kakao {
+    width: 180px;
+    word-break: break-all;
+}
+
 .col-delete {
-    width: 50px;
+    width: 45px;
     text-align: center;
 }
 
@@ -57,8 +78,13 @@ tr[data-status="new-menu"] td {
     background-color: #eeffee;
 }
 
-tr[data-status="updated"] td {
+tr[data-status="updated"] td,
+tr[data-status="updated-menu"] td {
     background-color: #fffff0;
+}
+
+tr.row-recommended td {
+    background-color: #e8f4fd;
 }
 
 tr.row-visited td:not(.col-visited):not(.col-delete) {
@@ -75,7 +101,7 @@ tr.row-visited td:not(.col-visited):not(.col-delete) {
 }
 
 .rating-select:focus {
-    outline: 2px solid #4a90d9;
+    outline: none;
 }
 
 .menu-row td:nth-child(2) {
@@ -83,7 +109,12 @@ tr.row-visited td:not(.col-visited):not(.col-delete) {
 }
 
 .menu-row td:first-child {
-    background-color: #fafafa;
+    vertical-align: middle;
+}
+
+td[data-field="description"],
+td[data-field="menu-description"] {
+    white-space: pre-wrap;
 }
 
 .btn-add-menu {

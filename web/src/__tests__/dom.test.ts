@@ -9,6 +9,8 @@ import {
   getMenuRows,
   collectPayload,
   initRatingSelects,
+  formatPrice,
+  formatPriceCell,
 } from "../dom";
 import { buildRatingSelect } from "../rating";
 
@@ -51,6 +53,7 @@ function makeMenuRow(
     price?: number;
     description?: string;
     checked?: boolean;
+    visited?: boolean;
   } = {},
 ): HTMLTableRowElement {
   const tr = document.createElement("tr");
@@ -58,7 +61,7 @@ function makeMenuRow(
   tr.dataset.status = "";
   const ratingValue = overrides.rating ?? 0;
   tr.innerHTML = `
-    <td></td>
+    <td class="col-visited" data-field="menu-visited"><input type="checkbox" class="menu-visited-check"${overrides.visited ? " checked" : ""}></td>
     <td contenteditable="true" data-field="menu-name">${overrides.name ?? ""}</td>
     <td contenteditable="true" data-field="menu-price">${overrides.price ?? ""}</td>
     <td data-field="menu-rating">${buildRatingSelect(ratingValue)}</td>
@@ -155,6 +158,12 @@ describe("createMenuRow", () => {
     const tr = createMenuRow();
     expect(tr.querySelector(".menu-check")).not.toBeNull();
   });
+
+  it("방문 체크박스가 첫 번째 td에 있다", () => {
+    const tr = createMenuRow();
+    const firstTd = tr.querySelector("td");
+    expect(firstTd!.querySelector(".menu-visited-check")).not.toBeNull();
+  });
 });
 
 describe("readRow", () => {
@@ -208,12 +217,14 @@ describe("readRow", () => {
       rating: 4.5,
       price: 9000,
       description: "진한 국물",
+      visited: false,
     });
     expect(result.menus[1]).toEqual({
       name: "차슈덮밥",
       rating: 3,
       price: 11000,
       description: "",
+      visited: false,
     });
   });
 
@@ -284,6 +295,7 @@ describe("readMenuRow", () => {
       rating: 4,
       price: 8000,
       description: "맛있다",
+      visited: true,
     });
     const result = readMenuRow(tr);
     expect(result).toEqual({
@@ -291,7 +303,14 @@ describe("readMenuRow", () => {
       rating: 4,
       price: 8000,
       description: "맛있다",
+      visited: true,
     });
+  });
+
+  it("visited 미체크 시 false를 반환한다", () => {
+    const tr = makeMenuRow({ name: "비빔밥", price: 8000 });
+    const result = readMenuRow(tr);
+    expect(result!.visited).toBe(false);
   });
 
   it("삭제 체크된 행은 null을 반환한다", () => {
@@ -431,6 +450,21 @@ describe("attachMenuRowEvents", () => {
     expect(restaurantRow.dataset.status).toBe("updated");
   });
 
+  it("메뉴 편집 시 자식 행 status가 updated-menu로 변경된다", () => {
+    const tbody = document.createElement("tbody");
+    const restaurantRow = makeRow({ name: "식당" });
+    const menuRow = makeMenuRow({ name: "메뉴" });
+    tbody.append(restaurantRow, menuRow);
+
+    attachMenuRowEvents(menuRow);
+    const nameCell = menuRow.querySelector<HTMLElement>(
+      "[data-field='menu-name']",
+    )!;
+    nameCell.dispatchEvent(new Event("input"));
+
+    expect(menuRow.dataset.status).toBe("updated-menu");
+  });
+
   it("메뉴 rating 변경 시 부모 식당 status가 updated로 변경된다", () => {
     const tbody = document.createElement("tbody");
     const restaurantRow = makeRow({ name: "식당" });
@@ -445,6 +479,20 @@ describe("attachMenuRowEvents", () => {
     expect(restaurantRow.dataset.status).toBe("updated");
   });
 
+  it("메뉴 rating 변경 시 자식 행 status가 updated-menu로 변경된다", () => {
+    const tbody = document.createElement("tbody");
+    const restaurantRow = makeRow({ name: "식당" });
+    const menuRow = makeMenuRow({ name: "메뉴", rating: 3 });
+    tbody.append(restaurantRow, menuRow);
+
+    attachMenuRowEvents(menuRow);
+    const select = menuRow.querySelector<HTMLSelectElement>(".rating-select")!;
+    select.value = "4";
+    select.dispatchEvent(new Event("change"));
+
+    expect(menuRow.dataset.status).toBe("updated-menu");
+  });
+
   it("메뉴 삭제 체크 시 row-deleted 클래스가 추가되고 부모가 updated된다", () => {
     const tbody = document.createElement("tbody");
     const restaurantRow = makeRow({ name: "식당" });
@@ -457,6 +505,38 @@ describe("attachMenuRowEvents", () => {
     cb.dispatchEvent(new Event("change"));
 
     expect(menuRow.classList.contains("row-deleted")).toBe(true);
+    expect(restaurantRow.dataset.status).toBe("updated");
+  });
+
+  it("이미 new-menu인 메뉴 행은 status가 변경되지 않는다", () => {
+    const tbody = document.createElement("tbody");
+    const restaurantRow = makeRow({ name: "식당" });
+    const menuRow = makeMenuRow({ name: "메뉴" });
+    menuRow.dataset.status = "new-menu";
+    tbody.append(restaurantRow, menuRow);
+
+    attachMenuRowEvents(menuRow);
+    const nameCell = menuRow.querySelector<HTMLElement>(
+      "[data-field='menu-name']",
+    )!;
+    nameCell.dispatchEvent(new Event("input"));
+
+    expect(menuRow.dataset.status).toBe("new-menu");
+  });
+
+  it("메뉴 visited 체크 시 자식과 부모 모두 updated 상태가 된다", () => {
+    const tbody = document.createElement("tbody");
+    const restaurantRow = makeRow({ name: "식당" });
+    const menuRow = makeMenuRow({ name: "메뉴" });
+    tbody.append(restaurantRow, menuRow);
+
+    attachMenuRowEvents(menuRow);
+    const visitedCb =
+      menuRow.querySelector<HTMLInputElement>(".menu-visited-check")!;
+    visitedCb.checked = true;
+    visitedCb.dispatchEvent(new Event("change"));
+
+    expect(menuRow.dataset.status).toBe("updated-menu");
     expect(restaurantRow.dataset.status).toBe("updated");
   });
 });
@@ -610,5 +690,63 @@ describe("initRatingSelects", () => {
 
     const select = container.querySelector<HTMLSelectElement>(".rating-select")!;
     expect(select.value).toBe("3.5");
+  });
+});
+
+describe("formatPrice", () => {
+  it("숫자를 콤마 포맷으로 변환한다", () => {
+    expect(formatPrice(9000)).toBe("9,000");
+    expect(formatPrice(11000)).toBe("11,000");
+    expect(formatPrice(1234567)).toBe("1,234,567");
+  });
+
+  it("0은 '0'을 반환한다", () => {
+    expect(formatPrice(0)).toBe("0");
+  });
+
+  it("1000 미만은 콤마 없이 반환한다", () => {
+    expect(formatPrice(500)).toBe("500");
+  });
+});
+
+describe("formatPriceCell", () => {
+  it("셀 텍스트를 콤마 포맷으로 변환한다", () => {
+    const td = document.createElement("td");
+    td.textContent = "9000";
+    formatPriceCell(td);
+    expect(td.textContent).toBe("9,000");
+  });
+
+  it("이미 콤마가 있는 텍스트도 처리한다", () => {
+    const td = document.createElement("td");
+    td.textContent = "9,000";
+    formatPriceCell(td);
+    expect(td.textContent).toBe("9,000");
+  });
+
+  it("빈 셀은 변경하지 않는다", () => {
+    const td = document.createElement("td");
+    td.textContent = "";
+    formatPriceCell(td);
+    expect(td.textContent).toBe("");
+  });
+});
+
+describe("readMenuRow with comma price", () => {
+  it("콤마가 포함된 가격을 올바르게 읽는다", () => {
+    const tr = document.createElement("tr");
+    tr.classList.add("menu-row");
+    tr.innerHTML = `
+      <td></td>
+      <td contenteditable="true" data-field="menu-name">라멘</td>
+      <td contenteditable="true" data-field="menu-price">9,000</td>
+      <td data-field="menu-rating"><select class="rating-select"><option value="0" selected>-</option></select></td>
+      <td></td>
+      <td></td>
+      <td contenteditable="true" data-field="menu-description"></td>
+      <td class="col-delete"><input type="checkbox" class="menu-check"></td>
+    `;
+    const result = readMenuRow(tr);
+    expect(result!.price).toBe(9000);
   });
 });

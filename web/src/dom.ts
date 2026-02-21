@@ -24,7 +24,7 @@ export function createMenuRow(): HTMLTableRowElement {
   tr.classList.add("menu-row");
   tr.dataset.status = "new-menu";
   tr.innerHTML = `
-    <td></td>
+    <td class="col-visited" data-field="menu-visited"><input type="checkbox" class="menu-visited-check"></td>
     <td contenteditable="true" data-field="menu-name"></td>
     <td contenteditable="true" data-field="menu-price"></td>
     <td data-field="menu-rating">${buildRatingSelect(0)}</td>
@@ -35,6 +35,31 @@ export function createMenuRow(): HTMLTableRowElement {
   `;
   attachMenuRowEvents(tr);
   return tr;
+}
+
+export function formatPrice(n: number): string {
+  if (!n && n !== 0) return "";
+  return n.toLocaleString("ko-KR");
+}
+
+export function formatPriceCell(td: HTMLElement): void {
+  const raw = td.textContent?.trim().replace(/,/g, "") ?? "";
+  const n = parseInt(raw, 10);
+  if (!isNaN(n) && n > 0) {
+    td.textContent = formatPrice(n);
+  }
+}
+
+function readTextWithBreaks(el: HTMLElement): string {
+  return el.innerHTML
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .trim();
 }
 
 function handlePlainTextPaste(e: ClipboardEvent): void {
@@ -88,20 +113,49 @@ export function attachRowEvents(tr: HTMLTableRowElement): void {
   }
 }
 
+function markMenuRowUpdated(tr: HTMLTableRowElement): void {
+  if (tr.dataset.status === "") {
+    tr.dataset.status = "updated-menu";
+  }
+  markParentUpdated(tr);
+}
+
 export function attachMenuRowEvents(tr: HTMLTableRowElement): void {
   tr.querySelectorAll<HTMLTableCellElement>("td[contenteditable]").forEach(
     (td) => {
       td.addEventListener("paste", handlePlainTextPaste as EventListener);
       td.addEventListener("input", () => {
-        markParentUpdated(tr);
+        markMenuRowUpdated(tr);
       });
     },
   );
 
+  const priceCell = tr.querySelector<HTMLElement>("[data-field='menu-price']");
+  if (priceCell) {
+    priceCell.addEventListener("focus", () => {
+      const raw = priceCell.textContent?.trim().replace(/,/g, "") ?? "";
+      if (raw !== priceCell.textContent?.trim()) {
+        priceCell.textContent = raw;
+      }
+    });
+    priceCell.addEventListener("blur", () => {
+      formatPriceCell(priceCell);
+    });
+  }
+
   const menuRatingSelect = tr.querySelector<HTMLSelectElement>(".rating-select");
   if (menuRatingSelect) {
     menuRatingSelect.addEventListener("change", () => {
-      markParentUpdated(tr);
+      markMenuRowUpdated(tr);
+    });
+  }
+
+  const menuVisitedCheck = tr.querySelector<HTMLInputElement>(
+    ".menu-visited-check",
+  );
+  if (menuVisitedCheck) {
+    menuVisitedCheck.addEventListener("change", () => {
+      markMenuRowUpdated(tr);
     });
   }
 
@@ -114,7 +168,7 @@ export function attachMenuRowEvents(tr: HTMLTableRowElement): void {
       } else {
         tr.classList.remove("row-deleted");
       }
-      markParentUpdated(tr);
+      markMenuRowUpdated(tr);
     });
   }
 }
@@ -158,13 +212,16 @@ export function readMenuRow(tr: HTMLTableRowElement): Menu | null {
   const rating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
   const priceText = tr
     .querySelector<HTMLElement>("[data-field='menu-price']")!
-    .textContent!.trim();
+    .textContent!.trim()
+    .replace(/,/g, "");
   const price = priceText ? parseInt(priceText, 10) || 0 : 0;
-  const description = tr
-    .querySelector<HTMLElement>("[data-field='menu-description']")!
-    .textContent!.trim();
+  const description = readTextWithBreaks(
+    tr.querySelector<HTMLElement>("[data-field='menu-description']")!,
+  );
+  const visited =
+    tr.querySelector<HTMLInputElement>(".menu-visited-check")?.checked ?? false;
 
-  return { name, rating, price, description };
+  return { name, rating, price, description, visited };
 }
 
 export function readRow(tr: HTMLTableRowElement): Restaurant {
@@ -186,9 +243,9 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
     .querySelector<HTMLElement>("[data-field='kakao_url']")!
     .textContent!.trim();
   const visited = tr.querySelector<HTMLInputElement>(".visited-check")!.checked;
-  const description = tr
-    .querySelector<HTMLElement>("[data-field='description']")!
-    .textContent!.trim();
+  const description = readTextWithBreaks(
+    tr.querySelector<HTMLElement>("[data-field='description']")!,
+  );
 
   const menuRows = getMenuRows(tr);
   const menus: Menu[] = [];

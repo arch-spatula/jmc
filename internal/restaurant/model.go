@@ -7,6 +7,7 @@ type Menu struct {
 	Rating      float64 `json:"rating"`
 	Price       int     `json:"price"`
 	Description string  `json:"description"`
+	Visited     bool    `json:"visited"`
 }
 
 func (m *Menu) Validate() error {
