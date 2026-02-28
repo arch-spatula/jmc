@@ -131,3 +131,54 @@ td[data-field="menu-description"] {
 .btn-add-menu:hover {
     background: #f0f0f0;
 }
+
+/* Tag cell styles */
+.tag-cell .tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    min-height: 24px;
+}
+
+.tag-cell .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 6px;
+    background: #e8e8e8;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.tag-cell .tag-remove {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1;
+    color: #666;
+}
+
+.tag-cell .tag-remove:hover {
+    color: #c00;
+}
+
+.tag-cell .tag-input {
+    flex: 1;
+    min-width: 60px;
+    border: none;
+    background: transparent;
+    font-size: inherit;
+    padding: 2px 4px;
+}
+
+.tag-cell .tag-input:focus {
+    outline: none;
+}
+
+.tag-cell .tag-input::placeholder {
+    color: #999;
+}

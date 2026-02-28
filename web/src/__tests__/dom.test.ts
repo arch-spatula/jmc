@@ -14,13 +14,23 @@ import {
 } from "../dom";
 import { buildRatingSelect } from "../rating";
 
+function buildTagCellForTest(categories: string[]): string {
+  const tagsHtml = categories
+    .map(
+      (c) =>
+        `<span class="tag" data-tag="${c}">${c} <button type="button" class="tag-remove">x</button></span>`,
+    )
+    .join("");
+  return `<td data-field="categories" class="tag-cell"><div class="tag-container">${tagsHtml}<input type="text" class="tag-input" placeholder="태그 입력..."></div></td>`;
+}
+
 function makeRow(
   overrides: {
     status?: string;
     originalName?: string;
     name?: string;
     rating?: number;
-    categories?: string;
+    categories?: string[];
     kakaoUrl?: string;
     visited?: boolean;
     description?: string;
@@ -33,12 +43,13 @@ function makeRow(
     tr.dataset.originalName = overrides.originalName;
   }
   const ratingValue = overrides.rating ?? 0;
+  const categories = overrides.categories ?? [];
   tr.innerHTML = `
     <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"${overrides.visited ? " checked" : ""}></td>
     <td contenteditable="true" data-field="name">${overrides.name ?? ""}</td>
     <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
     <td data-field="rating">${buildRatingSelect(ratingValue)}</td>
-    <td contenteditable="true" data-field="categories">${overrides.categories ?? ""}</td>
+    ${buildTagCellForTest(categories)}
     <td contenteditable="true" data-field="kakao_url">${overrides.kakaoUrl ?? ""}</td>
     <td contenteditable="true" data-field="description">${overrides.description ?? ""}</td>
     <td class="col-delete"><input type="checkbox" class="row-check"></td>
@@ -120,6 +131,15 @@ describe("createEmptyRow", () => {
     const tr = createEmptyRow();
     expect(tr.querySelector("[data-field='description']")).not.toBeNull();
   });
+
+  it("태그 입력 셀(tag-cell)을 포함한다", () => {
+    const tr = createEmptyRow();
+    const tagCell = tr.querySelector("[data-field='categories']");
+    expect(tagCell).not.toBeNull();
+    expect(tagCell?.classList.contains("tag-cell")).toBe(true);
+    expect(tagCell?.querySelector(".tag-container")).not.toBeNull();
+    expect(tagCell?.querySelector(".tag-input")).not.toBeNull();
+  });
 });
 
 describe("createMenuRow", () => {
@@ -172,7 +192,7 @@ describe("readRow", () => {
     const tr = makeRow({
       name: "테스트식당",
       rating: 3,
-      categories: "한식, 분식",
+      categories: ["한식", "분식"],
       kakaoUrl: "https://example.com",
       visited: true,
       description: "맛있는 집",
@@ -196,7 +216,7 @@ describe("readRow", () => {
     const tr = makeRow({
       name: "테스트식당",
       rating: 3,
-      categories: "한식",
+      categories: ["한식"],
       kakaoUrl: "https://example.com",
     });
     const menu1 = makeMenuRow({
@@ -233,7 +253,7 @@ describe("readRow", () => {
     const tr = makeRow({
       name: "테스트식당",
       rating: 3,
-      categories: "한식",
+      categories: ["한식"],
       kakaoUrl: "https://example.com",
     });
     const menu1 = makeMenuRow({ name: "라멘", price: 9000 });
@@ -562,7 +582,7 @@ describe("collectPayload", () => {
       status: "new",
       name: "새식당",
       rating: 4,
-      categories: "한식",
+      categories: ["한식"],
       kakaoUrl: "https://a.com",
     });
     const payload = collectPayload(makeTbody([{ row: tr }]));
@@ -580,7 +600,7 @@ describe("collectPayload", () => {
       status: "new",
       name: "새식당",
       rating: 4,
-      categories: "한식",
+      categories: ["한식"],
       kakaoUrl: "https://a.com",
     });
     const menu = makeMenuRow({ name: "라멘", rating: 4.5, price: 9000 });
@@ -596,7 +616,7 @@ describe("collectPayload", () => {
       status: "updated",
       name: "수정식당",
       rating: 2.5,
-      categories: "일식",
+      categories: ["일식"],
       kakaoUrl: "https://b.com",
       description: "변경됨",
     });
@@ -637,14 +657,14 @@ describe("collectPayload", () => {
       status: "new",
       name: "새식당",
       rating: 5,
-      categories: "한식",
+      categories: ["한식"],
       kakaoUrl: "https://a.com",
     });
     const updatedRow = makeRow({
       status: "updated",
       name: "수정식당",
       rating: 2,
-      categories: "일식",
+      categories: ["일식"],
       kakaoUrl: "https://b.com",
     });
     const deletedRow = makeRow({

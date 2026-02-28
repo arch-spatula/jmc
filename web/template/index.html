@@ -45,7 +45,7 @@
                             <option value="5">🌟🌟🌟🌟🌟</option>
                         </select>
                     </td>
-                    <td contenteditable="true" data-field="categories">{{range $i, $c := .Categories}}{{if $i}}, {{end}}{{$c}}{{end}}</td>
+                    <td data-field="categories" class="tag-cell"><div class="tag-container">{{range .Categories}}<span class="tag" data-tag="{{.}}">{{.}} <button type="button" class="tag-remove" aria-label="태그 삭제">x</button></span>{{end}}<input type="text" class="tag-input" placeholder="태그 입력..." maxlength="50"></div></td>
                     <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
                     <td contenteditable="true" data-field="description">{{nl2br .Description}}</td>
                     <td class="col-delete"><input type="checkbox" class="row-check"></td>

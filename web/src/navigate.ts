@@ -9,6 +9,9 @@ function getFocusableInCell(td: HTMLTableCellElement): HTMLElement | null {
   const checkbox = td.querySelector<HTMLInputElement>("input[type='checkbox']");
   if (checkbox) return checkbox;
 
+  const textInput = td.querySelector<HTMLInputElement>("input[type='text']");
+  if (textInput) return textInput;
+
   return null;
 }
 

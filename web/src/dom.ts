@@ -1,6 +1,32 @@
 import type { Restaurant, Menu, SavePayload } from "./types";
 import { buildRatingSelect } from "./rating";
 
+function buildTagCell(categories: string[] = []): string {
+  const tagsHtml = categories
+    .map(
+      (c) =>
+        `<span class="tag" data-tag="${escapeTagAttr(c)}">${escapeTagText(c)} <button type="button" class="tag-remove" aria-label="태그 삭제">×</button></span>`,
+    )
+    .join("");
+  return `<td data-field="categories" class="tag-cell"><div class="tag-container">${tagsHtml}<input type="text" class="tag-input" placeholder="태그 입력..." maxlength="50"></div></td>`;
+}
+
+function escapeTagAttr(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function escapeTagText(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export function createEmptyRow(): HTMLTableRowElement {
   const tr = document.createElement("tr");
   tr.classList.add("restaurant-row");
@@ -10,7 +36,7 @@ export function createEmptyRow(): HTMLTableRowElement {
     <td contenteditable="true" data-field="name"></td>
     <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
     <td data-field="rating">${buildRatingSelect(0)}</td>
-    <td contenteditable="true" data-field="categories"></td>
+    ${buildTagCell([])}
     <td contenteditable="true" data-field="kakao_url"></td>
     <td contenteditable="true" data-field="description"></td>
     <td class="col-delete"><input type="checkbox" class="row-check"></td>
@@ -68,34 +94,84 @@ function handlePlainTextPaste(e: ClipboardEvent): void {
   document.execCommand("insertText", false, text);
 }
 
+function markRowUpdated(tr: HTMLTableRowElement): void {
+  if (tr.dataset.status === "") {
+    tr.dataset.status = "updated";
+  }
+}
+
+function addTagFromInput(
+  input: HTMLInputElement,
+  container: HTMLElement,
+  tr: HTMLTableRowElement,
+): void {
+  const parts = input.value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (parts.length === 0) return;
+  for (const val of parts) {
+    const span = document.createElement("span");
+    span.className = "tag";
+    span.dataset.tag = val;
+    span.appendChild(document.createTextNode(val + " "));
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "tag-remove";
+    btn.textContent = "×";
+    btn.setAttribute("aria-label", "태그 삭제");
+    span.appendChild(btn);
+    container.insertBefore(span, input);
+  }
+  input.value = "";
+  markRowUpdated(tr);
+}
+
+function attachTagCellEvents(tr: HTMLTableRowElement): void {
+  const cell = tr.querySelector<HTMLElement>("[data-field='categories']");
+  if (!cell) return;
+  const container = cell.querySelector<HTMLElement>(".tag-container");
+  const input = cell.querySelector<HTMLInputElement>(".tag-input");
+  if (!container || !input) return;
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTagFromInput(input, container, tr);
+    }
+  });
+  input.addEventListener("blur", () => {
+    if (input.value.trim()) addTagFromInput(input, container, tr);
+  });
+  container.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains("tag-remove")) {
+      target.closest(".tag")?.remove();
+      markRowUpdated(tr);
+    }
+  });
+}
+
 export function attachRowEvents(tr: HTMLTableRowElement): void {
+  attachTagCellEvents(tr);
+
   tr.querySelectorAll<HTMLTableCellElement>("td[contenteditable]").forEach(
     (td) => {
       td.addEventListener("paste", handlePlainTextPaste as EventListener);
       td.addEventListener("input", () => {
-        if (tr.dataset.status === "") {
-          tr.dataset.status = "updated";
-        }
+        markRowUpdated(tr);
       });
     },
   );
 
   const ratingSelect = tr.querySelector<HTMLSelectElement>(".rating-select");
   if (ratingSelect) {
-    ratingSelect.addEventListener("change", () => {
-      if (tr.dataset.status === "") {
-        tr.dataset.status = "updated";
-      }
-    });
+    ratingSelect.addEventListener("change", () => markRowUpdated(tr));
   }
 
   const visitedCheck = tr.querySelector<HTMLInputElement>(".visited-check");
   if (visitedCheck) {
-    visitedCheck.addEventListener("change", () => {
-      if (tr.dataset.status === "") {
-        tr.dataset.status = "updated";
-      }
-    });
+    visitedCheck.addEventListener("change", () => markRowUpdated(tr));
   }
 
   const rowCheck = tr.querySelector<HTMLInputElement>(".row-check");
@@ -230,14 +306,11 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
     .textContent!.trim();
   const ratingSelect = tr.querySelector<HTMLSelectElement>(".rating-select");
   const rating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
-  const catText = tr
-    .querySelector<HTMLElement>("[data-field='categories']")!
-    .textContent!.trim();
-  const categories = catText
-    ? catText
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
+  const tagContainer = tr.querySelector<HTMLElement>(".tag-container");
+  const categories = tagContainer
+    ? Array.from(tagContainer.querySelectorAll<HTMLElement>(".tag[data-tag]"))
+        .map((el) => el.dataset.tag?.trim())
+        .filter((s): s is string => Boolean(s))
     : [];
   const kakaoUrl = tr
     .querySelector<HTMLElement>("[data-field='kakao_url']")!
