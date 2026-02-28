@@ -46,12 +46,11 @@ func (r *Restaurant) Validate() error {
 	if r.Rating*2 != float64(int(r.Rating*2)) {
 		return fmt.Errorf("rating은 0.5 단위여야 합니다: %s", r.Name)
 	}
-	if len(r.Categories) == 0 {
-		return fmt.Errorf("categories는 최소 1개 필요합니다: %s", r.Name)
+	// 변경: nil만 방지 (빈 배열 허용)
+	if r.Categories == nil {
+		return fmt.Errorf("categories 필드는 필수입니다: %s", r.Name)
 	}
-	if r.KakaoURL == "" {
-		return fmt.Errorf("kakao_url은 필수입니다: %s", r.Name)
-	}
+	// 카카오톡 맵 url은 없어도 됨(빈문자열로 저장)
 	for i, m := range r.Menus {
 		if err := m.Validate(); err != nil {
 			return fmt.Errorf("%s menus[%d]: %w", r.Name, i, err)
