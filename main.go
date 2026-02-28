@@ -44,7 +44,7 @@ func main() {
 
 	//
 	case "init":
-		fmt.Println("개발 예정")
+		cmd.Init()
 		os.Exit(0)
 
 	//

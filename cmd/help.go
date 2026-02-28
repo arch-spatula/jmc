@@ -6,7 +6,8 @@ import "fmt"
 func Help() {
 	fmt.Println("Usage: jmc <command>")
 	fmt.Println("Commands:")
-	fmt.Println("  help - 도움말 출력")
-	fmt.Println("  wiki - 위키 출력")
-	fmt.Println("  version - 버전 출력")
+	fmt.Println("  -i, init - 초기화 출력")
+	fmt.Println("  -h, help - 도움말 출력")
+	fmt.Println("  -w, wiki - 위키 출력")
+	fmt.Println("  -v, version - 버전 출력")
 }
