@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Go Server",
+        "type": "go",
+        "request": "launch",
+        "mode": "debug",
+        "program": "${workspaceFolder}",
+        "args": ["wiki"],
+        "cwd": "${workspaceFolder}"
+      },
+      {
+        "name": "Launch Chrome",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:8080",
+        "webRoot": "${workspaceFolder}/web/src"
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Full Debug (Server + Chrome)",
+        "configurations": ["Launch Go Server", "Launch Chrome"]
+      }
+    ]
+  }
