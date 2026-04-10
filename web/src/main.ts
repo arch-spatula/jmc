@@ -9,8 +9,9 @@ import {
   formatPriceCell,
   getMenuRows,
 } from "./dom";
-import { fetchRecommend, saveBatch } from "./api";
+import { saveBatch } from "./api";
 import { initKeyboardNavigation } from "./navigate";
+import { initTagFilters } from "./filter";
 
 const table = document.querySelector<HTMLTableElement>("table")!;
 const tbody = document.querySelector<HTMLTableSectionElement>("#table-body")!;
@@ -20,27 +21,23 @@ const btnRecommend = document.querySelector<HTMLButtonElement>("#btn-recommend")
 
 initKeyboardNavigation(table);
 
-btnRecommend.addEventListener("click", async () => {
-  try {
-    const restaurant = await fetchRecommend();
-    if (!restaurant) {
-      alert("추천할 식당이 없습니다.");
-      return;
+btnRecommend.addEventListener("click", () => {
+  const rows = tbody.querySelectorAll<HTMLTableRowElement>("tr.restaurant-row");
+  const visibleRows: HTMLTableRowElement[] = [];
+  for (const row of rows) {
+    row.classList.remove("row-recommended");
+    if (row.style.display !== "none") {
+      visibleRows.push(row);
     }
-    const rows = tbody.querySelectorAll<HTMLTableRowElement>("tr.restaurant-row");
-    for (const row of rows) {
-      row.classList.remove("row-recommended");
-      const nameCell = row.querySelector<HTMLElement>("[data-field='name']");
-      if (nameCell?.textContent?.trim() === restaurant.name) {
-        row.classList.add("row-recommended");
-        row.scrollIntoView({ behavior: "smooth", block: "center" });
-        setTimeout(() => row.classList.remove("row-recommended"), 2000);
-        break;
-      }
-    }
-  } catch (err) {
-    alert("추천 실패: " + (err as Error).message);
   }
+  if (visibleRows.length === 0) {
+    alert("추천할 식당이 없습니다.");
+    return;
+  }
+  const picked = visibleRows[Math.floor(Math.random() * visibleRows.length)];
+  picked.classList.add("row-recommended");
+  picked.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => picked.classList.remove("row-recommended"), 2000);
 });
 
 btnAdd.addEventListener("click", () => {
@@ -87,3 +84,5 @@ tbody
 tbody
   .querySelectorAll<HTMLTableRowElement>("tr.menu-row")
   .forEach(attachMenuRowEvents);
+
+initTagFilters(tbody);

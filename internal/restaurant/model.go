@@ -1,13 +1,17 @@
 package restaurant
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Menu struct {
-	Name        string  `json:"name"`
-	Rating      float64 `json:"rating"`
-	Price       int     `json:"price"`
-	Description string  `json:"description"`
-	Visited     bool    `json:"visited"`
+	Name          string  `json:"name"`
+	Rating        float64 `json:"rating"`
+	Price         int     `json:"price"`
+	Description   string  `json:"description"`
+	Visited       bool    `json:"visited"`
+	LastVisitedAt *string `json:"last_visited_at,omitempty"`
 }
 
 func (m *Menu) Validate() error {
@@ -27,14 +31,15 @@ func (m *Menu) Validate() error {
 }
 
 type Restaurant struct {
-	Name        string   `json:"name"`
-	Rating      float64  `json:"rating"`
-	Categories  []string `json:"categories"`
-	Locations   []string `json:"locations"`
-	KakaoURL    string   `json:"kakao_url"`
-	Visited     bool     `json:"visited"`
-	Description string   `json:"description"`
-	Menus       []Menu   `json:"menus"`
+	Name          string   `json:"name"`
+	Rating        float64  `json:"rating"`
+	Categories    []string `json:"categories"`
+	Locations     []string `json:"locations"`
+	KakaoURL      string   `json:"kakao_url"`
+	Visited       bool     `json:"visited"`
+	Description   string   `json:"description"`
+	Menus         []Menu   `json:"menus"`
+	LastVisitedAt *string  `json:"last_visited_at,omitempty"`
 }
 
 func (r *Restaurant) Validate() error {
@@ -80,15 +85,48 @@ type CLIConfig struct {
 }
 
 type SearchFilter struct {
-	Name       string   `json:"name"`
-	Categories []string `json:"categories"`
-	SortBy     string   `json:"sort_by"`
-	Visited    *bool    `json:"visited"`
+	Name         string   `json:"name"`
+	Categories   []string `json:"categories"`
+	Locations    []string `json:"locations"`
+	NameQuery    string   `json:"name_query"`
+	MenuQuery    string   `json:"menu_query"`
+	Visited      *bool    `json:"visited"`
+	CooldownDays *int     `json:"cooldown_days"`
+}
+
+func (f *SearchFilter) Validate() error {
+	if strings.TrimSpace(f.Name) == "" {
+		return fmt.Errorf("필터 name은 필수입니다")
+	}
+	if f.Categories == nil {
+		f.Categories = []string{}
+	}
+	if f.Locations == nil {
+		f.Locations = []string{}
+	}
+	return nil
 }
 
 type Search struct {
 	Filters  []SearchFilter `json:"filters"`
 	Selected *int           `json:"selected"`
+}
+
+func (s *Search) Validate() error {
+	seen := map[string]bool{}
+	for i := range s.Filters {
+		if err := s.Filters[i].Validate(); err != nil {
+			return fmt.Errorf("search.filters[%d]: %w", i, err)
+		}
+		if seen[s.Filters[i].Name] {
+			return fmt.Errorf("search.filters 이름 중복: %s", s.Filters[i].Name)
+		}
+		seen[s.Filters[i].Name] = true
+	}
+	if s.Selected != nil && (*s.Selected < 0 || *s.Selected >= len(s.Filters)) {
+		return fmt.Errorf("search.selected 인덱스 범위 밖: %d", *s.Selected)
+	}
+	return nil
 }
 
 type RestaurantData struct {
@@ -97,8 +135,13 @@ type RestaurantData struct {
 	Search      Search       `json:"search"`
 }
 
+type UpdateEntry struct {
+	OriginalName string     `json:"original_name"`
+	Restaurant   Restaurant `json:"restaurant"`
+}
+
 type SaveRequest struct {
-	New    []Restaurant `json:"new"`
-	Update []Restaurant `json:"update"`
-	Delete []string     `json:"delete"`
+	New    []Restaurant  `json:"new"`
+	Update []UpdateEntry `json:"update"`
+	Delete []string      `json:"delete"`
 }

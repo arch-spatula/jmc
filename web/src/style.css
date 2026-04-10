@@ -23,6 +23,23 @@ td:focus-within {
     text-align: center;
 }
 
+.col-last-visited {
+    width: 130px;
+    text-align: center;
+}
+
+.last-visited-input {
+    border: none;
+    background: transparent;
+    font-size: inherit;
+    width: 100%;
+    padding: 2px 4px;
+}
+
+.last-visited-input:focus {
+    outline: none;
+}
+
 .col-name {
     width: 130px;
 }
@@ -75,6 +92,95 @@ td:focus-within {
 
 .actions button:hover {
     background: #f0f0f0;
+}
+
+.name-filter-row {
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.name-filter {
+    width: 240px;
+    padding: 6px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.name-filter:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
+.visited-filter {
+    padding: 6px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 13px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.visited-filter:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
+.cooldown-filter {
+    width: 120px;
+    padding: 6px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.cooldown-filter:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
+.tag-filters {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tag-filters .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.tag-filters .filter-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+    margin-right: 4px;
+    min-width: 60px;
+}
+
+.tag-filters .filter-tag {
+    padding: 3px 10px;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #333;
+}
+
+.tag-filters .filter-tag:hover {
+    background: #f0f0f0;
+}
+
+.tag-filters .filter-tag.active {
+    background: #4a90d9;
+    border-color: #4a90d9;
+    color: #fff;
 }
 
 tr[data-status="new"] td,
@@ -185,4 +291,121 @@ td[data-field="menu-description"] {
 
 .tag-cell .tag-input::placeholder {
     color: #999;
+}
+
+/* Saved filters dropdown */
+.saved-filters-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.saved-filters-trigger {
+    padding: 6px 14px;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.saved-filters-trigger:hover {
+    background: #f0f0f0;
+}
+
+.saved-filters-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    min-width: 300px;
+    margin-top: 4px;
+    padding: 8px 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.saved-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+}
+
+.saved-filter-row:hover {
+    background: #f7f7f7;
+}
+
+.saved-filter-name {
+    flex: 1;
+    font-size: 13px;
+    color: #333;
+}
+
+.saved-filter-move {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 10px;
+    padding: 2px 4px;
+    color: #666;
+}
+
+.saved-filter-move:hover:not(:disabled) {
+    color: #333;
+}
+
+.saved-filter-move:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.saved-filter-check {
+    cursor: pointer;
+}
+
+.saved-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-top: 1px solid #eee;
+}
+
+.saved-filter-input {
+    flex: 1;
+    padding: 4px 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.saved-filter-input:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
+.saved-filter-btn {
+    padding: 4px 12px;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.saved-filter-btn:hover {
+    background: #f0f0f0;
+}
+
+.saved-filter-btn-delete {
+    border-color: #c00;
+    color: #c00;
+}
+
+.saved-filter-btn-delete:hover {
+    background: #fff0f0;
 }

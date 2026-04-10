@@ -94,6 +94,18 @@ func normalizeRestaurant(rest *Restaurant) {
 	}
 }
 
+func (r *Repository) SaveSearch(s Search) (*RestaurantData, error) {
+	data, err := r.FindAll()
+	if err != nil {
+		return nil, err
+	}
+	data.Search = s
+	if err := r.Save(data); err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 func (r *Repository) SaveBatch(req SaveRequest) (*RestaurantData, error) {
 	data, err := r.FindAll()
 	if err != nil {
@@ -104,7 +116,7 @@ func (r *Repository) SaveBatch(req SaveRequest) (*RestaurantData, error) {
 		normalizeRestaurant(&req.New[i])
 	}
 	for i := range req.Update {
-		normalizeRestaurant(&req.Update[i])
+		normalizeRestaurant(&req.Update[i].Restaurant)
 	}
 
 	deleteSet := make(map[string]bool, len(req.Delete))
@@ -121,8 +133,8 @@ func (r *Repository) SaveBatch(req SaveRequest) (*RestaurantData, error) {
 	data.Restaurants = filtered
 
 	updateMap := make(map[string]Restaurant, len(req.Update))
-	for _, item := range req.Update {
-		updateMap[item.Name] = item
+	for _, entry := range req.Update {
+		updateMap[entry.OriginalName] = entry.Restaurant
 	}
 	for i, rest := range data.Restaurants {
 		if updated, ok := updateMap[rest.Name]; ok {
